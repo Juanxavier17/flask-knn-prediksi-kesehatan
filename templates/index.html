@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisis Kesehatan | Gizi Balita & Kanker Paru</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- NAVIGATION -->
+    <div class="tab-nav">
+
+        <button class="tab-btn active" onclick="showTab('stunting', event)">
+            🍼 Analisis Gizi Balita
+        </button>
+
+        <button class="tab-btn" onclick="showTab('paru', event)">
+            🫁 Deteksi Kanker Paru
+        </button>
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- STUNTING -->
+    <!-- ========================= -->
+    <div id="stunting-tab" class="card tab-content active">
+
+        <h2>Analisis Gizi Balita</h2>
+
+        <!-- FIXED ROUTE -->
+        <form action="/predict" method="post">
+
+            <label>Umur (Bulan)</label>
+
+            <input
+                type="number"
+                name="umur"
+                placeholder="Masukkan umur"
+                min="0"
+                max="36"
+                required
+                value="{{ request.form.get('umur', '') }}"
+            >
+
+            <label>Jenis Kelamin</label>
+
+            <select name="jk" required>
+
+                <option value="0"
+                    {% if request.form.get('jk') == '0' %}
+                        selected
+                    {% endif %}
+                >
+                    Laki-laki
+                </option>
+
+                <option value="1"
+                    {% if request.form.get('jk') == '1' %}
+                        selected
+                    {% endif %}
+                >
+                    Perempuan
+                </option>
+
+            </select>
+
+            <label>Tinggi Badan (cm)</label>
+
+            <input
+                type="number"
+                name="tinggi"
+                placeholder="Masukkan tinggi"
+                min="45"
+                max="110"
+                required
+                value="{{ request.form.get('tinggi', '') }}"
+            >
+
+            <button type="submit">
+                Cek Status Gizi
+            </button>
+
+        </form>
+
+        {% if stunting_result %}
+
+        <div class="result result-stunting risk-{{ stunting_result.risk }}">
+
+            <div class="result-title">
+
+                {% if stunting_result.prediction == "Sangat Pendek" %}
+                    ⚠️ {{ stunting_result.prediction }}
+                {% else %}
+                    ✅ {{ stunting_result.prediction }}
+                {% endif %}
+
+            </div>
+
+            <div class="recommendation">
+
+                <strong>📋 Rekomendasi:</strong>
+                <br>
+
+                {{ stunting_result.message }}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <!-- ========================= -->
+    <!-- PARU -->
+    <!-- ========================= -->
+    <div id="paru-tab" class="card tab-content">
+
+        <h2>🫁 Deteksi Dini Kanker Paru-Paru</h2>
+
+        <form action="/predict_paru" method="post">
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>Jenis Kelamin</label>
+
+                    <select name="gender" required>
+
+                        <option value="">Pilih</option>
+
+                        <option value="pria"
+                            {% if request.form.get('gender') == 'pria' %}
+                                selected
+                            {% endif %}
+                        >
+                            Pria
+                        </option>
+
+                        <option value="wanita"
+                            {% if request.form.get('gender') == 'wanita' %}
+                                selected
+                            {% endif %}
+                        >
+                            Wanita
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Usia (Tahun)</label>
+
+                    <input
+                        type="number"
+                        name="age"
+                        placeholder="18-100 tahun"
+                        min="18"
+                        max="100"
+                        required
+                        value="{{ request.form.get('age', '') }}"
+                    >
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Rata-rata Merokok (batang/hari)</label>
+
+                <input
+                    type="number"
+                    name="smoking"
+                    placeholder="0-80 batang/hari"
+                    min="0"
+                    max="80"
+                    required
+                    value="{{ request.form.get('smoking', '') }}"
+                >
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>Jari Kuning</label>
+
+                    <select name="yellow_fingers" required>
+
+                        <option value="">Pilih</option>
+
+                        <option value="yes"
+                            {% if request.form.get('yellow_fingers') == 'yes' %}
+                                selected
+                            {% endif %}
+                        >
+                            Ya
+                        </option>
+
+                        <option value="no"
+                            {% if request.form.get('yellow_fingers') == 'no' %}
+                                selected
+                            {% endif %}
+                        >
+                            Tidak
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Penyakit Kronis</label>
+
+                    <select name="chronic_disease" required>
+
+                        <option value="">Pilih</option>
+
+                        <option value="yes"
+                            {% if request.form.get('chronic_disease') == 'yes' %}
+                                selected
+                            {% endif %}
+                        >
+                            Ya
+                        </option>
+
+                        <option value="no"
+                            {% if request.form.get('chronic_disease') == 'no' %}
+                                selected
+                            {% endif %}
+                        >
+                            Tidak
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>Kelelahan (Fatigue)</label>
+
+                    <select name="fatigue" required>
+
+                        <option value="">Pilih</option>
+
+                        <option value="yes"
+                            {% if request.form.get('fatigue') == 'yes' %}
+                                selected
+                            {% endif %}
+                        >
+                            Ya
+                        </option>
+
+                        <option value="no"
+                            {% if request.form.get('fatigue') == 'no' %}
+                                selected
+                            {% endif %}
+                        >
+                            Tidak
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Mengi (Wheezing)</label>
+
+                    <select name="cough" required>
+
+                        <option value="">Pilih</option>
+
+                        <option value="yes"
+                            {% if request.form.get('cough') == 'yes' %}
+                                selected
+                            {% endif %}
+                        >
+                            Ya
+                        </option>
+
+                        <option value="no"
+                            {% if request.form.get('cough') == 'no' %}
+                                selected
+                            {% endif %}
+                        >
+                            Tidak
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label>Batuk Kronis</label>
+
+                    <select name="shortness" required>
+
+                        <option value="">Pilih</option>
+
+                        <option value="yes"
+                            {% if request.form.get('shortness') == 'yes' %}
+                                selected
+                            {% endif %}
+                        >
+                            Ya
+                        </option>
+
+                        <option value="no"
+                            {% if request.form.get('shortness') == 'no' %}
+                                selected
+                            {% endif %}
+                        >
+                            Tidak
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Nyeri Dada</label>
+
+                    <select name="chest_pain" required>
+
+                        <option value="">Pilih</option>
+
+                        <option value="yes"
+                            {% if request.form.get('chest_pain') == 'yes' %}
+                                selected
+                            {% endif %}
+                        >
+                            Ya
+                        </option>
+
+                        <option value="no"
+                            {% if request.form.get('chest_pain') == 'no' %}
+                                selected
+                            {% endif %}
+                        >
+                            Tidak
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <button type="submit">
+                🔍 Deteksi Risiko Kanker Paru
+            </button>
+
+        </form>
+
+        {% if paru_result %}
+
+        <div class="result result-paru risk-{{ paru_result.risk_level }}">
+
+            <div class="result-title">
+
+                {% if paru_result.prediction == 1 %}
+                    ⚠️ {{ paru_result.prediction_label }}
+                {% else %}
+                    ✅ {{ paru_result.prediction_label }}
+                {% endif %}
+
+            </div>
+
+            <div class="confidence-section">
+
+                <div class="confidence-label">
+                    Tingkat Keyakinan: {{ paru_result.confidence }}%
+                </div>
+
+                <div class="confidence-bar">
+                    <div
+                        class="confidence-fill"
+                        style="width: {{ paru_result.confidence }}%"
+                    ></div>
+                </div>
+
+            </div>
+
+            <div class="recommendation">
+
+                <strong>📋 Rekomendasi:</strong>
+                <br>
+
+                {{ paru_result.recommendation }}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+        {% if paru_error %}
+
+        <div class="result error">
+
+            ❌ Error: {{ paru_error }}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script>
+
+function showTab(tabName, event) {
+
+    // hide all tabs
+    let tabs = document.getElementsByClassName("tab-content");
+
+    for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove("active");
+    }
+
+    // remove active buttons
+    let btns = document.getElementsByClassName("tab-btn");
+
+    for (let i = 0; i < btns.length; i++) {
+        btns[i].classList.remove("active");
+    }
+
+    // show selected tab
+    document.getElementById(tabName + "-tab")
+        .classList.add("active");
+
+    // active button
+    event.target.classList.add("active");
+}
+
+// stay on paru tab after submit
+window.onload = function () {
+
+    {% if paru_result or paru_error %}
+        document.querySelectorAll(".tab-content")
+            .forEach(el => el.classList.remove("active"));
+
+        document.querySelectorAll(".tab-btn")
+            .forEach(el => el.classList.remove("active"));
+
+        document.getElementById("paru-tab")
+            .classList.add("active");
+
+        document.querySelectorAll(".tab-btn")[1]
+            .classList.add("active");
+    {% endif %}
+
+}
+
+</script>
+
+</body>
+</html>
